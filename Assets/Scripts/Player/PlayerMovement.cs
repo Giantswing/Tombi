@@ -25,7 +25,6 @@ public class PlayerMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
         floorRay = new Ray(transform.position, -Vector3.up);
 
         //Movimiento horizontal
@@ -60,4 +59,11 @@ public class PlayerMovement : MonoBehaviour {
 
         myBody.velocity = new Vector3(xSpeed, myBody.velocity.y, myBody.velocity.z);
 	}
+
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        
+    }
 }

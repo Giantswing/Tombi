@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
-
+using UnityEngine.PostProcessing;
 public class CameraScript : MonoBehaviour {
 
+    private PostProcessingProfile myProfile;
+    private DepthOfFieldModel.Settings dofModel;
     public Transform target;
 
     /*
@@ -23,20 +25,27 @@ public class CameraScript : MonoBehaviour {
     private float ySpeed = 0.03f;
     private float zSpeed = 0.06f;
 
+    private float distToPlayer;
+
     private Vector3 pos;
     private void Start()
     {
         xPosTo = target.position.x;
         yPosTo = target.position.y + 1f;
         zPosTo = target.position.z - 7f;
+
+        myProfile = GetComponent<PostProcessingBehaviour>().profile;
+        dofModel = myProfile.depthOfField.settings;
     }
 
 
     // Update is called once per frame
     void FixedUpdate () {
+        distToPlayer = Vector3.Distance(transform.position, target.position);
+
         xPosTo = target.position.x;
         yPosTo = target.position.y + 1.5f;
-        zPosTo = target.position.z - 7f;
+        zPosTo = target.position.z - 8.5f;
 
         xPos += (xPosTo - xPos) * xSpeed;
         yPos += (yPosTo - yPos) * ySpeed;
@@ -44,5 +53,9 @@ public class CameraScript : MonoBehaviour {
         
         pos = new Vector3(xPos, yPos, zPos);
         transform.position = pos;
+
+        dofModel.focusDistance = distToPlayer;
+
+        myProfile.depthOfField.settings = dofModel;
 	}
 }
