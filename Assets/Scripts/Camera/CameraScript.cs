@@ -5,6 +5,7 @@ public class CameraScript : MonoBehaviour {
     private PostProcessingProfile myProfile;
     private DepthOfFieldModel.Settings dofModel;
     public Transform target;
+    private PlayerMovement player;
 
     /*
     public Vector3 offset;
@@ -36,6 +37,8 @@ public class CameraScript : MonoBehaviour {
 
         myProfile = GetComponent<PostProcessingBehaviour>().profile;
         dofModel = myProfile.depthOfField.settings;
+
+        player = target.GetComponent<PlayerMovement>();
     }
 
 
@@ -44,8 +47,8 @@ public class CameraScript : MonoBehaviour {
         distToPlayer = Vector3.Distance(transform.position, target.position);
 
         xPosTo = target.position.x;
-        yPosTo = target.position.y + 1.5f;
-        zPosTo = target.position.z - 8.5f;
+        yPosTo = target.position.y + 3.2f;
+        zPosTo = target.position.z - 8.5f - player.ZPlane*1.5f;
 
         xPos += (xPosTo - xPos) * xSpeed;
         yPos += (yPosTo - yPos) * ySpeed;

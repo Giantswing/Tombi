@@ -15,6 +15,10 @@ public class PlayerMovement : MonoBehaviour {
     Ray floorRay;
     RaycastHit floorHit;
 
+    ZMoverScript zObject;
+
+    public int ZPlane = 0;
+
     //LAYERS
     int groundLayer = 8;
 
@@ -28,31 +32,63 @@ public class PlayerMovement : MonoBehaviour {
         floorRay = new Ray(transform.position, -Vector3.up);
 
         //Movimiento horizontal
-        if (Input.GetKey(KeyCode.D))
+        if (GameController.ReturnConsoleState() == false)
         {
-            xSpeed = movementSpeed;
-        }
-
-        else if (Input.GetKey(KeyCode.A))
-        {
-            xSpeed = -movementSpeed;
-        }
-
-        //Parar movimiento horizontal al soltar alguna tecla de movimiento
-        if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A))
-        {
-            xSpeed = 0;
-        }
-
-        //Salto
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            //Realizar un check de si tenemos el suelo debajo
-            if(Physics.Raycast(floorRay, out floorHit, 1.2f, 1 << groundLayer))
+            if (Input.GetKey(KeyCode.D))
             {
-                print("Salto!");
-                //myBody.AddForce(0, jumpSpeed * 50f, 0);
-                myBody.velocity = new Vector3(0, jumpSpeed, 0);
+                xSpeed = movementSpeed;
+            }
+
+            else if (Input.GetKey(KeyCode.A))
+            {
+                xSpeed = -movementSpeed;
+            }
+
+            //Parar movimiento horizontal al soltar alguna tecla de movimiento
+            if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A))
+            {
+                xSpeed = 0;
+            }
+
+            //Salto
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                /*
+                //Realizar un check de si tenemos el suelo debajo
+                if(Physics.Raycast(floorRay, out floorHit, 1.2f, 1 << groundLayer))
+                {
+                    print("Salto!");
+                    //myBody.AddForce(0, jumpSpeed * 50f, 0);
+                    myBody.velocity = new Vector3(0, jumpSpeed, 0);
+                }
+                ^*/
+                Collider[] hitCollider1 = Physics.OverlapSphere(transform.position + new Vector3(.2f, -1f, 0), 0.1f, 1 << groundLayer);
+                Collider[] hitCollider2 = Physics.OverlapSphere(transform.position + new Vector3(-.2f, -1f, 0), 0.1f, 1 << groundLayer);
+                if (hitCollider1.Length > 0 || hitCollider2.Length > 0)
+                {
+                    print("Salto!");
+                    //myBody.AddForce(0, jumpSpeed * 50f, 0);
+                    myBody.velocity = new Vector3(0, jumpSpeed, 0);
+                }
+            }
+
+            //Moverse en el eje Z (moverse al fondo)
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                if (zObject != null)
+                {
+                    if (zObject.moveUp)
+                        ZMove(true);
+                }
+            }
+
+            else if (Input.GetKeyDown(KeyCode.S))
+            {
+                if (zObject != null)
+                {
+                    if (!zObject.moveUp)
+                        ZMove(false);
+                }
             }
         }
 
@@ -60,10 +96,33 @@ public class PlayerMovement : MonoBehaviour {
         myBody.velocity = new Vector3(xSpeed, myBody.velocity.y, myBody.velocity.z);
 	}
 
+    private void ZMove(bool up)
+    {
+        if (up)
+            ZPlane++;
+        else
+            ZPlane--;
 
+        transform.position = new Vector3(transform.position.x, transform.position.y, zObject.targetZMover.transform.position.z);
+        print(ZPlane);
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        
+        if (other.CompareTag("ZMover"))
+        {
+            print("Inside ZMover");
+            zObject = other.GetComponent<ZMoverScript>();
+            zObject.ToggleArrowVisibility(true);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("ZMover"))
+        {
+            zObject.ToggleArrowVisibility(false);
+            zObject = null;
+        }
     }
 }
