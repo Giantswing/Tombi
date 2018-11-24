@@ -15,6 +15,9 @@ public class GameController : MonoBehaviour {
     private PlayerMovement playerScript;
     private Rigidbody playerBody;
 
+    private float deltaTime;
+    private float fpsTemp;
+    private float fpsFinal;
 
     //VARIABLES DE LA CONSOLA
     public bool ConsoleMode = false;
@@ -50,7 +53,12 @@ public class GameController : MonoBehaviour {
             RestartGame();
         }
 
-        debugText.text = "Tombi " + gameVersion + "  Press TAB to toggle the console\nPlayer position: " + player.transform.position +
+
+        deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
+        fpsTemp = 1.0f / deltaTime;
+        fpsFinal = Mathf.Ceil(fpsTemp);
+
+        debugText.text = "Tombi " + gameVersion + "  Press TAB to toggle the console\nFPS: " + fpsFinal +"\nPlayer position: " + player.transform.position +
             "\nPlayer velocity: " + playerBody.velocity + "\nPlayer ZPlane: " + playerScript.ZPlane;
 
         if (Input.GetButtonDown("ConsoleToggle"))

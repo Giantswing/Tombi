@@ -1,18 +1,11 @@
 ﻿using UnityEngine;
-using UnityEngine.PostProcessing;
+using UnityEngine.Rendering.PostProcessing;
+
 public class CameraScript : MonoBehaviour {
 
-    private PostProcessingProfile myProfile;
-    private DepthOfFieldModel.Settings dofModel;
+
     public Transform target;
     private PlayerMovement player;
-
-    /*
-    public Vector3 offset;
-    private Vector3 desiredPosition;
-    private Vector3 smoothedPosition;
-    public float smoothSpeed = 0.125f;
-    */
 
     private float xPos;
     private float yPos;
@@ -28,6 +21,12 @@ public class CameraScript : MonoBehaviour {
 
     private float distToPlayer;
 
+
+    //POST PROCESADO
+    private DepthOfField dofLayer = null;
+    private PostProcessVolume postVolume;
+    
+
     private Vector3 pos;
     private void Start()
     {
@@ -35,10 +34,10 @@ public class CameraScript : MonoBehaviour {
         yPosTo = target.position.y + 1f;
         zPosTo = target.position.z - 7f;
 
-        myProfile = GetComponent<PostProcessingBehaviour>().profile;
-        dofModel = myProfile.depthOfField.settings;
-
         player = target.GetComponent<PlayerMovement>();
+
+        postVolume = gameObject.GetComponent<PostProcessVolume>();
+        postVolume.profile.TryGetSettings(out dofLayer);
     }
 
 
@@ -57,8 +56,6 @@ public class CameraScript : MonoBehaviour {
         pos = new Vector3(xPos, yPos, zPos);
         transform.position = pos;
 
-        dofModel.focusDistance = distToPlayer;
-
-        myProfile.depthOfField.settings = dofModel;
+        dofLayer.focusDistance.value = distToPlayer;
 	}
 }
