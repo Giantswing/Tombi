@@ -17,7 +17,7 @@ public class CameraScript : MonoBehaviour {
 
     private float xSpeed = 0.06f;
     private float ySpeed = 0.03f;
-    private float zSpeed = 0.06f;
+    private float zSpeed = 0.1f;
 
     private float distToPlayer;
 
