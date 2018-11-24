@@ -23,8 +23,8 @@ public class CameraScript : MonoBehaviour {
 
 
     //POST PROCESADO
-    private DepthOfField dofLayer = null;
-    private PostProcessVolume postVolume;
+    //private DepthOfField dofLayer = null;
+    //private PostProcessVolume postVolume;
     
 
     private Vector3 pos;
@@ -36,8 +36,8 @@ public class CameraScript : MonoBehaviour {
 
         player = target.GetComponent<PlayerMovement>();
 
-        postVolume = gameObject.GetComponent<PostProcessVolume>();
-        postVolume.profile.TryGetSettings(out dofLayer);
+        //postVolume = gameObject.GetComponent<PostProcessVolume>();
+        //postVolume.profile.TryGetSettings(out dofLayer);
     }
 
 
@@ -46,7 +46,7 @@ public class CameraScript : MonoBehaviour {
         distToPlayer = Vector3.Distance(transform.position, target.position);
 
         xPosTo = target.position.x;
-        yPosTo = target.position.y + 3.2f;
+        yPosTo = target.position.y + 3.2f + player.ZPlane;
         zPosTo = target.position.z - 8.5f - player.ZPlane*1.5f;
 
         xPos += (xPosTo - xPos) * xSpeed;
@@ -56,6 +56,6 @@ public class CameraScript : MonoBehaviour {
         pos = new Vector3(xPos, yPos, zPos);
         transform.position = pos;
 
-        dofLayer.focusDistance.value = distToPlayer;
+        //dofLayer.focusDistance.value = distToPlayer;
 	}
 }

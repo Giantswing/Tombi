@@ -9,16 +9,21 @@ public class PlayerMovement : MonoBehaviour {
     private float xSpeed = 0;
     private float xSpeedTo = 0;
     private float xSpeedFinal = 0;
-    private float maxXSpeed = 10f;
+    
     private float ySpeed = 0;
 
     public float jumpSpeed = 8f;
-    public float movementSpeed = 8f;
+    private float maxXSpeed = 10f;
     public float movementAccelerationOriginal = 1f;
     private float movementAccelarationNow = 1f;
+    private float movementBrakeOriginal = 1.5f;
+    private float movementBrakeNow = 1.5f;
+    private bool isMoving = false;
 
     public bool isInAir;
     private Collider[] floorColliders;
+    private Collider[] wallColliders;
+    private Collider[] wallColliders2;
     private Vector3 floorCollisionBoxSize;
 
     public int facingDirection = 1; //-1=izquierda ; 1=derecha
@@ -42,6 +47,7 @@ public class PlayerMovement : MonoBehaviour {
     public bool isHoldingWall = false;
     private Vector3 holdingWallPos;
     private Vector3 wallCollisionBoxSize;
+    private Vector3 wall2CollisionBoxSize;
     private float holdingWallDelay = 0;
 
     //LAYERS
@@ -52,47 +58,77 @@ public class PlayerMovement : MonoBehaviour {
 	void Start () {
         myBody = GetComponent<Rigidbody>();
         wallCollisionBoxSize = new Vector3(0.3f, 0.35f, 0.2f);
-        floorCollisionBoxSize = new Vector3(0.3f, 0.35f, 0.2f);
+        wall2CollisionBoxSize = new Vector3(0.2f, 0.1f, 0.1f);
+        floorCollisionBoxSize = new Vector3(0.35f, 0.35f, 0.2f);
         holdingWallPos = Vector3.zero;
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    private void FixedUpdate()
+    {
         floorColliders = Physics.OverlapBox(transform.position + new Vector3(0, -0.8f, 0), floorCollisionBoxSize, Quaternion.identity, (1 << groundLayer) | (1 << holdingWallLayer));
         if (floorColliders.Length > 0)
             isInAir = false;
         else
             isInAir = true;
+
+        if (isHoldingWall)
+        {
+            wallColliders = Physics.OverlapBox(transform.position + new Vector3(0.5f * facingDirection, 0.8f, 0), wallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
+            if (wallColliders.Length == 0)
+                isHoldingWall = false;
+        }
+
+        if (isMoving)
+        {
+            wallColliders2 = Physics.OverlapBox(transform.position + new Vector3(0.5f * facingDirection, 0, 0), wall2CollisionBoxSize, Quaternion.identity, 1 << groundLayer);
+            if (wallColliders2.Length > 0)
+                xSpeed = 0;
+        }
+    }
+
+
+    // Update is called once per frame
+    void Update () {
+
         //Movimiento horizontal
-
         if (isInAir)
+        {
             movementAccelarationNow = movementAccelerationOriginal * 1f;
+            movementBrakeNow = movementBrakeOriginal * 0.1f;
+        }
         else
+        {
             movementAccelarationNow = movementAccelerationOriginal;
-
-        xSpeedFinal = xSpeedTo;
-        if (xSpeedFinal > maxXSpeed)
-            xSpeedFinal = maxXSpeed;
-        else if (xSpeedFinal < -maxXSpeed)
-            xSpeedFinal = -maxXSpeed;
-
-        if(xSpeed < xSpeedFinal)
-        {
-            xSpeed += movementAccelarationNow;
-            if (xSpeed > xSpeedFinal)
-                xSpeed = xSpeedFinal;
+            movementBrakeNow = movementBrakeOriginal;
         }
-        else if(xSpeed > xSpeedFinal)
+
+        if (!isMoving)
         {
-            xSpeed -= movementAccelarationNow;
-            if (xSpeed < xSpeedFinal)
-                xSpeed = xSpeedFinal;
+            if(xSpeed > 0)
+            {
+                xSpeed -= movementBrakeNow * Time.deltaTime * 60f;
+                if (xSpeed < 0)
+                    xSpeed = 0;
+            }
+            else if(xSpeed < 0)
+            {
+                xSpeed += movementBrakeNow * Time.deltaTime * 60f;
+                if (xSpeed > 0)
+                    xSpeed = 0;
+            }
         }
+
+        if (xSpeed > maxXSpeed)
+            xSpeed = maxXSpeed;
+        else if (xSpeed < -maxXSpeed)
+            xSpeed = -maxXSpeed;
+
 
         if (isHoldingWall)
         {
             myBody.velocity = Vector3.zero;
             myBody.useGravity = false;
+            xSpeedTo = 0;
         } else
         {
             if (holdingWallDelay > 0)
@@ -102,6 +138,8 @@ public class PlayerMovement : MonoBehaviour {
 
         if(GameController.ReturnConsoleState() == true)
         {
+            isMoving = false;
+            xSpeed = 0;
             xSpeedTo = 0;
         }
 
@@ -111,10 +149,11 @@ public class PlayerMovement : MonoBehaviour {
             {
                 if (!isHoldingWall)
                 {
+                    isMoving = true;
                     facingDirection = 1;
-                    xSpeedTo += movementAccelarationNow * facingDirection;
-                    Collider[] wallCollider = Physics.OverlapBox(transform.position + new Vector3(0.5f * facingDirection, 0.8f, 0), wallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
-                    if (wallCollider.Length > 0 && holdingWallDelay <= 0)
+                    xSpeed += movementAccelarationNow * facingDirection * Time.deltaTime * 60f;
+                    wallColliders = Physics.OverlapBox(transform.position + new Vector3(0.5f * facingDirection, 0.8f, 0), wallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
+                    if (wallColliders.Length > 0 && holdingWallDelay <= 0)
                         isHoldingWall = true;
                 }
             }
@@ -123,10 +162,11 @@ public class PlayerMovement : MonoBehaviour {
             {
                 if (!isHoldingWall)
                 {
+                    isMoving = true;
                     facingDirection = -1;
-                    xSpeedTo += movementAccelarationNow * facingDirection;
-                    Collider[] wallCollider = Physics.OverlapBox(transform.position + new Vector3(0.5f * facingDirection, 0.8f, 0), wallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
-                    if (wallCollider.Length > 0 && holdingWallDelay <= 0)
+                    xSpeed += movementAccelarationNow * facingDirection * Time.deltaTime * 60f;
+                    wallColliders = Physics.OverlapBox(transform.position + new Vector3(0.5f * facingDirection, 0.8f, 0), wallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
+                    if (wallColliders.Length > 0 && holdingWallDelay <= 0)
                         isHoldingWall = true;
                 }
             }
@@ -134,10 +174,9 @@ public class PlayerMovement : MonoBehaviour {
             //Parar movimiento horizontal al soltar alguna tecla de movimiento
             if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A))
             {
-                xSpeedTo = 0;
+                isMoving = false;
             }
 
-            
 
             //Salto
             if (Input.GetKeyDown(KeyCode.Space))
@@ -146,7 +185,7 @@ public class PlayerMovement : MonoBehaviour {
                 {
                     isHoldingWall = false;
                     myBody.velocity = new Vector3(0, jumpSpeed, 0);
-                    xSpeed = 7.8f * -facingDirection;
+                    xSpeed = 9f * -facingDirection;
                     holdingWallDelay = 0.25f;
                 }
 

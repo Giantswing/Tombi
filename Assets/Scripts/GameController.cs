@@ -18,6 +18,7 @@ public class GameController : MonoBehaviour {
     private float deltaTime;
     private float fpsTemp;
     private float fpsFinal;
+    private float memoryAllocated;
 
     //VARIABLES DE LA CONSOLA
     public bool ConsoleMode = false;
@@ -48,6 +49,7 @@ public class GameController : MonoBehaviour {
 
     }
     void Update () {
+
         if (player.transform.position.y < -10f)
         {
             RestartGame();
@@ -122,6 +124,8 @@ public class GameController : MonoBehaviour {
     void RestartGame()
     {
         player.transform.position = startingPos;
+        playerScript.ZPlane = 0;
+        playerScript.isHoldingWall = false;
     }
 
     public static bool ReturnConsoleState()
@@ -181,7 +185,17 @@ public class GameController : MonoBehaviour {
                 break;
 
             case "all":
-                GameController.WriteLineInConsole("exit, restartplayer, all");
+                GameController.WriteLineInConsole("exit | restartplayer | all | maxfps fps");
+                break;
+
+            case "maxfps":
+                int tempCheck = int.Parse(fcommand[1]);
+                if (tempCheck > 5)
+                {
+                    QualitySettings.vSyncCount = 0;
+                    Application.targetFrameRate = tempCheck;
+                    GameController.WriteLineInConsole("Fps máximos cambiados a " + tempCheck);
+                }
                 break;
         }
     }

@@ -1643,7 +1643,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afab61972793eba4e985da19592f7814, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameVersion: 0.0.1
+  gameVersion: 0.0.5b
   player: {fileID: 1938799200}
   debugText: {fileID: 987450423}
   ConsoleMode: 0
@@ -3071,6 +3071,11 @@ Prefab:
         type: 2}
       propertyPath: movementSpeed
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 114898805993529540, guid: c8209baa602364d4ea33685c04096d42,
+        type: 2}
+      propertyPath: movementAccelerationOriginal
+      value: 0.7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8209baa602364d4ea33685c04096d42, type: 2}
