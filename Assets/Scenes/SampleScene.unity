@@ -254,6 +254,10 @@ Prefab:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 3e8130e7c3c151541abd007a244e8d8f, type: 2}
+    - target: {fileID: 13700002, guid: e2a89536dfd27f042b72acd51401362d, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ce4d30defa7378544a1b7f423c3b6298, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e2a89536dfd27f042b72acd51401362d, type: 3}
   m_IsPrefabAsset: 0
@@ -800,7 +804,7 @@ Camera:
   m_HDR: 0
   m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
-  m_ForceIntoRT: 0
+  m_ForceIntoRT: 1
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
