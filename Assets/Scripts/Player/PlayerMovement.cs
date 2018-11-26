@@ -13,13 +13,14 @@ public class PlayerMovement : MonoBehaviour {
     private float ySpeed = 0;
 
     public float jumpSpeed = 8f;
-    private float maxXSpeed = 10f;
+    public float maxXSpeed = 10f;
     public float movementAccelerationOriginal = 1f;
     private float movementAccelarationNow = 1f;
     private float movementBrakeOriginal = 1.5f;
     private float movementBrakeNow = 1.5f;
     private bool isMoving = false;
 
+    [HideInInspector]
     public bool isInAir;
     private Collider[] floorColliders;
     private Collider[] wallColliders;
@@ -150,7 +151,7 @@ public class PlayerMovement : MonoBehaviour {
                 if (!isHoldingWall)
                 {
                     isMoving = true;
-                    facingDirection = 1;
+                    TurnDirection(1);
                     xSpeed += movementAccelarationNow * facingDirection * Time.deltaTime * 60f;
                     wallColliders = Physics.OverlapBox(transform.position + new Vector3(0.5f * facingDirection, 0.8f, 0), wallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
                     if (wallColliders.Length > 0 && holdingWallDelay <= 0)
@@ -163,7 +164,7 @@ public class PlayerMovement : MonoBehaviour {
                 if (!isHoldingWall)
                 {
                     isMoving = true;
-                    facingDirection = -1;
+                    TurnDirection(-1);
                     xSpeed += movementAccelarationNow * facingDirection * Time.deltaTime * 60f;
                     wallColliders = Physics.OverlapBox(transform.position + new Vector3(0.5f * facingDirection, 0.8f, 0), wallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
                     if (wallColliders.Length > 0 && holdingWallDelay <= 0)
@@ -185,7 +186,7 @@ public class PlayerMovement : MonoBehaviour {
                 {
                     isHoldingWall = false;
                     myBody.velocity = new Vector3(0, jumpSpeed, 0);
-                    xSpeed = 9f * -facingDirection;
+                    xSpeed = (movementAccelarationNow*12f) * -facingDirection;
                     holdingWallDelay = 0.25f;
                 }
 
@@ -241,6 +242,16 @@ public class PlayerMovement : MonoBehaviour {
 
         myBody.velocity = new Vector3(xSpeed, myBody.velocity.y, myBody.velocity.z);
 	}
+
+    private void TurnDirection(int dir)
+    {
+        if (facingDirection != dir)
+        {
+            facingDirection = dir;
+        }
+        transform.localScale = new Vector3(dir, 1f, 1f);
+    }
+
 
     private void ZMove(bool up)
     {
