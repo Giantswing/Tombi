@@ -36,6 +36,7 @@ public class PlayerMovement : MonoBehaviour {
 
     //VARIABLES FOR ZMOVING
     ZMoverScript zObject;
+    ZRotatorScript zRotator;
     public int ZPlane = 0;
     public float ZPlaneAnimationState = 0;
     private bool inZPlaneAnimation = false;
@@ -55,8 +56,14 @@ public class PlayerMovement : MonoBehaviour {
     int groundLayer = 8;
     int holdingWallLayer = 10;
 
+    //VARIABLES FOR ZROTATING
+    public Vector3 movRotation;
+    private Vector3 playerRotation;
+
 	// Use this for initialization
 	void Start () {
+        playerRotation = Vector3.zero;
+        movRotation = new Vector3(1f, 0, 0);
         myBody = GetComponent<Rigidbody>();
         wallCollisionBoxSize = new Vector3(0.3f, 0.35f, 0.2f);
         wall2CollisionBoxSize = new Vector3(0.2f, 0.1f, 0.1f);
@@ -79,12 +86,15 @@ public class PlayerMovement : MonoBehaviour {
                 isHoldingWall = false;
         }
 
+        /*
         if (isMoving)
         {
-            wallColliders2 = Physics.OverlapBox(transform.position + new Vector3(0.5f * facingDirection, 0, 0), wall2CollisionBoxSize, Quaternion.identity, 1 << groundLayer);
+            wallColliders2 = Physics.OverlapBox(transform.position + new Vector3(0.5f * facingDirection, -0.5f, 0), wall2CollisionBoxSize, Quaternion.identity, 1 << groundLayer);
             if (wallColliders2.Length > 0)
                 xSpeed = 0;
         }
+        */
+        
     }
 
 
@@ -204,6 +214,14 @@ public class PlayerMovement : MonoBehaviour {
                     if (zObject.moveUp && !zObject.isDisabled)
                         ZMove(true);
                 }
+
+                else if(zRotator != null)
+                {
+                    if (!zRotator.isDisabled)
+                    {
+                        ZRotate();
+                    }
+                }
             }
 
             else if (Input.GetKeyDown(KeyCode.S))
@@ -213,6 +231,15 @@ public class PlayerMovement : MonoBehaviour {
                     if (!zObject.moveUp && !zObject.isDisabled)
                         ZMove(false);
                 }
+
+                else if (zRotator != null)
+                {
+                    if (!zRotator.isDisabled)
+                    {
+                        ZRotate();
+                    }
+                }
+
             }
         }
 
@@ -240,8 +267,11 @@ public class PlayerMovement : MonoBehaviour {
            
         }
 
-        myBody.velocity = new Vector3(xSpeed, myBody.velocity.y, myBody.velocity.z);
-	}
+        //////////ACTUALIZAR VELOCIDAD DEL RIGIDBODY/////////////////////////////////////////////////////////////
+
+        //myBody.velocity = new Vector3(xSpeed, myBody.velocity.y, myBody.velocity.z);
+        myBody.velocity = new Vector3(xSpeed * movRotation.x, myBody.velocity.y, xSpeed * movRotation.z);
+    }
 
     private void TurnDirection(int dir)
     {
@@ -276,12 +306,50 @@ public class PlayerMovement : MonoBehaviour {
         ZPlaneAnimationState = 0;
     }
 
+    private void ZRotate()
+    {
+        //movRotation = zRotator.newRot;
+
+        /*
+        if (zRotator.moveUp)
+        {
+            if(movRotation == new Vector3(1f, 0, 0))
+            {
+                movRotation = new Vector3()
+            }
+        }
+        */
+
+        if (movRotation == new Vector3(1f, 0, 0))
+        {
+            movRotation = new Vector3(0, 0, 1f);
+            playerRotation = new Vector3(0, -90f, 0);
+            transform.rotation = Quaternion.Euler(playerRotation);
+        }
+        else if (movRotation == new Vector3(0, 0, 1f))
+        {
+            movRotation = new Vector3(1f, 0, 0);
+            playerRotation = new Vector3(0, 0, 0);
+            transform.rotation = Quaternion.Euler(playerRotation);
+        }
+
+        Vector3 newPosition = new Vector3(zRotator.transform.position.x, 0, zRotator.transform.position.z);
+
+        transform.position = new Vector3(newPosition.x, transform.position.y, newPosition.z);
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("ZMover"))
         {
             zObject = other.GetComponent<ZMoverScript>();
             zObject.ToggleArrowVisibility(true);
+        }
+
+        else if (other.CompareTag("ZRotator"))
+        {
+            zRotator = other.GetComponent<ZRotatorScript>();
+            zRotator.ToggleArrowVisibility(true);
         }
     }
 
@@ -291,6 +359,12 @@ public class PlayerMovement : MonoBehaviour {
         {
             zObject.ToggleArrowVisibility(false);
             zObject = null;
+        }
+
+        else if (other.CompareTag("ZRotator"))
+        {
+            zRotator.ToggleArrowVisibility(false);
+            zRotator = null;
         }
     }
 }

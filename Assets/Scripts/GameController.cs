@@ -126,6 +126,7 @@ public class GameController : MonoBehaviour {
         player.transform.position = startingPos;
         playerScript.ZPlane = 0;
         playerScript.isHoldingWall = false;
+        playerScript.movRotation = Vector3.zero;
     }
 
     public static bool ReturnConsoleState()
