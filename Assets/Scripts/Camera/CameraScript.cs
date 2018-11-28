@@ -54,7 +54,7 @@ public class CameraScript : MonoBehaviour {
         */
 
         xPosTo = target.position.x + (HorizontalOffset * player.movRotation.x) + (-DepthOffset * player.movRotation.z);
-        yPosTo = target.position.y + 1f;
+        yPosTo = target.position.y + 2.5f;
         zPosTo = target.position.z + (DepthOffset * player.movRotation.x);
 
         xPos += (xPosTo - xPos) * xSpeed;
