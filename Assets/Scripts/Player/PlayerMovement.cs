@@ -23,8 +23,8 @@ public class PlayerMovement : MonoBehaviour {
     [HideInInspector]
     public bool isInAir;
     private Collider[] floorColliders;
-    private Collider[] wallColliders;
-    private Collider[] wallColliders2;
+    private Collider[] holdingWallColliders;
+    private Collider[] normalWallColliders;
     private Vector3 floorCollisionBoxSize;
 
     public int facingDirection = 1; //-1=izquierda ; 1=derecha
@@ -48,8 +48,10 @@ public class PlayerMovement : MonoBehaviour {
     //VARIABLES FOR HOLDING TO WALLS
     public bool isHoldingWall = false;
     private Vector3 holdingWallPos;
-    private Vector3 wallCollisionBoxSize;
-    private Vector3 wall2CollisionBoxSize;
+
+    private Vector3 holdingWallCollisionBoxSize;
+    private Vector3 normalWallCollisionBoxSize;
+
     private float holdingWallDelay = 0;
 
     //LAYERS
@@ -65,34 +67,32 @@ public class PlayerMovement : MonoBehaviour {
         playerRotation = Vector3.zero;
         movRotation = new Vector3(1f, 0, 0);
         myBody = GetComponent<Rigidbody>();
-        wallCollisionBoxSize = new Vector3(0.3f, 0.35f, 0.2f);
-        wall2CollisionBoxSize = new Vector3(0.2f, 0.1f, 0.1f);
+
+        holdingWallCollisionBoxSize = new Vector3(0.3f, 0.35f, 0.2f);
+        normalWallCollisionBoxSize = new Vector3(0.2f, 0.1f, 0.1f);
         floorCollisionBoxSize = new Vector3(0.35f, 0.35f, 0.2f);
         holdingWallPos = Vector3.zero;
     }
 
     private void FixedUpdate()
     {
+
         floorColliders = Physics.OverlapBox(transform.position + new Vector3(0, -0.8f, 0), floorCollisionBoxSize, Quaternion.identity, (1 << groundLayer) | (1 << holdingWallLayer));
         if (floorColliders.Length > 0)
             isInAir = false;
         else
             isInAir = true;
 
-        if (isHoldingWall)
-        {
-            wallColliders = Physics.OverlapBox(transform.position + new Vector3((0.5f * facingDirection * movRotation.x), 0.8f, (0.5f * facingDirection * movRotation.z)), wallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
-            if (wallColliders.Length == 0)
-                isHoldingWall = false;
-        }
 
+        holdingWallColliders = Physics.OverlapBox(transform.position + new Vector3((0.5f * facingDirection * movRotation.x), 0.8f, (0.5f * facingDirection * movRotation.z)), holdingWallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
+        //holdingWallColliders = Physics.OverlapBox(transform.position + new Vector3((0.5f * facingDirection), 0.8f, 0), holdingWallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
+        if (holdingWallColliders.Length == 0)
+                isHoldingWall = false;
         
-        if (isMoving)
-        {
-            wallColliders2 = Physics.OverlapBox(transform.position + new Vector3((0.5f * facingDirection * movRotation.x), 0.5f, (0.5f * facingDirection * movRotation.z)), wall2CollisionBoxSize, Quaternion.identity, 1 << groundLayer);
-            if (wallColliders2.Length > 0)
-                xSpeed = 0;
-        }
+        
+        normalWallColliders = Physics.OverlapBox(transform.position + new Vector3((0.5f * facingDirection * movRotation.x), 0.5f, (0.5f * facingDirection * movRotation.z)), normalWallCollisionBoxSize, Quaternion.identity, 1 << groundLayer);
+            if (normalWallColliders.Length > 0 || isHoldingWall)
+                xSpeed = 0;     
         
         
     }
@@ -163,8 +163,8 @@ public class PlayerMovement : MonoBehaviour {
                     isMoving = true;
                     TurnDirection(1);
                     xSpeed += movementAccelarationNow * facingDirection * Time.deltaTime * 60f;
-                    wallColliders = Physics.OverlapBox(transform.position + new Vector3((0.5f * facingDirection * movRotation.x), 0.8f, (0.5f * facingDirection * movRotation.z)), wallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
-                    if (wallColliders.Length > 0 && holdingWallDelay <= 0)
+
+                    if (holdingWallColliders.Length > 0 && holdingWallDelay <= 0)
                         isHoldingWall = true;
                 }
             }
@@ -176,8 +176,7 @@ public class PlayerMovement : MonoBehaviour {
                     isMoving = true;
                     TurnDirection(-1);
                     xSpeed += movementAccelarationNow * facingDirection * Time.deltaTime * 60f;
-                    wallColliders = Physics.OverlapBox(transform.position + new Vector3((0.5f * facingDirection * movRotation.x), 0.8f, (0.5f * facingDirection * movRotation.z)), wallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
-                    if (wallColliders.Length > 0 && holdingWallDelay <= 0)
+                    if (holdingWallColliders.Length > 0 && holdingWallDelay <= 0)
                         isHoldingWall = true;
                 }
             }
@@ -275,11 +274,14 @@ public class PlayerMovement : MonoBehaviour {
 
     private void TurnDirection(int dir)
     {
-        if (facingDirection != dir)
+        if (!isHoldingWall)
         {
-            facingDirection = dir;
+            if (facingDirection != dir)
+            {
+                facingDirection = dir;
+            }
+            transform.localScale = new Vector3(dir, 1f, 1f);
         }
-        transform.localScale = new Vector3(dir, 1f, 1f);
     }
 
 

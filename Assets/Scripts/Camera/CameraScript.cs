@@ -15,13 +15,13 @@ public class CameraScript : MonoBehaviour {
     private float zPosTo;
 
     private float xSpeed = 0.1f;
-    private float ySpeed = 0.03f;
+    private float ySpeed = 0.06f;
     private float zSpeed = 0.1f;
 
-    private float distToPlayer;
+    //private float distToPlayer;
 
     private float DepthOffset = -7f;
-    private float VerticalOffset = 1f;
+    //private float VerticalOffset = 1f;
     private float HorizontalOffset = 0;
 
     private Vector3 cameraRot;
@@ -45,7 +45,7 @@ public class CameraScript : MonoBehaviour {
 
     // Update is called once per frame
     void FixedUpdate () {
-        distToPlayer = Vector3.Distance(transform.position, target.position);
+        //distToPlayer = Vector3.Distance(transform.position, target.position);
 
         /*
         xPosTo = target.position.x;

@@ -61,7 +61,8 @@ public class GameController : MonoBehaviour {
         fpsFinal = Mathf.Ceil(fpsTemp);
 
         debugText.text = "Tombi " + gameVersion + "  Press TAB to toggle the console\nFPS: " + fpsFinal +"\nPlayer position: " + player.transform.position +
-            "\nPlayer velocity: " + playerBody.velocity + "\nPlayer ZPlane: " + playerScript.ZPlane;
+            "\nPlayer velocity: " + playerBody.velocity + "\nPlayer movRotation/rotation: " + playerScript.movRotation + "|" + playerScript.transform.rotation.eulerAngles + "\nPlayer ZPlane: " + playerScript.ZPlane
+            +"\nHolding wall: " + playerScript.isHoldingWall;
 
         if (Input.GetButtonDown("ConsoleToggle"))
         {
@@ -123,10 +124,12 @@ public class GameController : MonoBehaviour {
 
     void RestartGame()
     {
+        print("YOU DIED!");
         player.transform.position = startingPos;
         playerScript.ZPlane = 0;
         playerScript.isHoldingWall = false;
         playerScript.movRotation = new Vector3(1f, 0, 0);
+        player.transform.rotation = Quaternion.Euler(Vector3.zero);
     }
 
     public static bool ReturnConsoleState()
