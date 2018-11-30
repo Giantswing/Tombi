@@ -11,6 +11,9 @@ public class GameController : MonoBehaviour {
 
     public GameObject player;
     public Text debugText;
+
+    public Text playerPointsText;
+
     private Vector3 startingPos;
     private PlayerMovement playerScript;
     private Rigidbody playerBody;
@@ -27,9 +30,14 @@ public class GameController : MonoBehaviour {
     public Text ConsoleLog;
     public InputField ConsoleInputField;
 
+    //**********************
+    public int playerPoints;
+
     private void Start()
     {
         me = GetComponent<GameController>();
+        playerPoints = 0;
+        me.UpdatePoints();
 
         startingPos = player.transform.position;
         playerScript = player.GetComponent<PlayerMovement>();
@@ -62,7 +70,7 @@ public class GameController : MonoBehaviour {
 
         debugText.text = "Tombi " + gameVersion + "  Press TAB to toggle the console\nFPS: " + fpsFinal +"\nPlayer position: " + player.transform.position +
             "\nPlayer velocity: " + playerBody.velocity + "\nPlayer movRotation/rotation: " + playerScript.movRotation + "|" + playerScript.transform.rotation.eulerAngles + "\nPlayer ZPlane: " + playerScript.ZPlane
-            +"\nHolding wall: " + playerScript.isHoldingWall;
+            +"\nHolding wall: " + playerScript.isHoldingWall + "\nfloorColliders: " + playerScript.floorColliders.Length;
 
         if (Input.GetButtonDown("ConsoleToggle"))
         {
@@ -130,12 +138,26 @@ public class GameController : MonoBehaviour {
         playerScript.isHoldingWall = false;
         playerScript.movRotation = new Vector3(1f, 0, 0);
         player.transform.rotation = Quaternion.Euler(Vector3.zero);
+        playerScript.facingDirection = 1;
     }
 
     public static bool ReturnConsoleState()
     {
         return me.ConsoleMode;
     }
+
+    
+    public static void ChangePoints(int pointchange)
+    {
+        me.playerPoints += pointchange;
+        me.UpdatePoints();
+    }
+
+    public void UpdatePoints()
+    {
+        me.playerPointsText.text = me.playerPoints.ToString();
+    }
+    
 
     public static void WriteLineInConsole(string line)
     {
@@ -189,7 +211,7 @@ public class GameController : MonoBehaviour {
                 break;
 
             case "all":
-                GameController.WriteLineInConsole("exit | restartplayer | all | maxfps fps");
+                GameController.WriteLineInConsole("exit | restartplayer | all | maxfps fps | jumpspeed speed");
                 break;
 
             case "maxfps":
@@ -199,6 +221,14 @@ public class GameController : MonoBehaviour {
                     QualitySettings.vSyncCount = 0;
                     Application.targetFrameRate = tempCheck;
                     GameController.WriteLineInConsole("Fps máximos cambiados a " + tempCheck);
+                }
+                break;
+
+            case "jumpspeed":
+                int tempCheck2 = int.Parse(fcommand[1]);
+                if (tempCheck2 > 0)
+                {
+                    me.playerScript.jumpSpeed = tempCheck2;
                 }
                 break;
         }

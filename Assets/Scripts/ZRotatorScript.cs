@@ -11,6 +11,16 @@ public class ZRotatorScript : MonoBehaviour
     //public Vector3 newRot;
     public bool moveUp;
 
+
+    private void OnDrawGizmos()
+    {
+        //Gizmos.color = new Color(1f, 0.5f, 0.25f, 1f);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawCube(transform.position, new Vector3(1f, 1f, 1f));
+        Gizmos.DrawWireCube(transform.position, new Vector3(1f, 1f, 1f));
+    }
+
+
     public void ToggleArrowVisibility(bool show)
     {
         imActive = show;

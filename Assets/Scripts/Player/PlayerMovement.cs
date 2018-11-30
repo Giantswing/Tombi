@@ -22,9 +22,9 @@ public class PlayerMovement : MonoBehaviour {
 
     [HideInInspector]
     public bool isInAir;
-    private Collider[] floorColliders;
-    private Collider[] holdingWallColliders;
-    private Collider[] normalWallColliders;
+    public Collider[] floorColliders;
+    public Collider[] holdingWallColliders;
+    public Collider[] normalWallColliders;
     private Vector3 floorCollisionBoxSize;
 
     public int facingDirection = 1; //-1=izquierda ; 1=derecha
@@ -61,10 +61,12 @@ public class PlayerMovement : MonoBehaviour {
     //VARIABLES FOR ZROTATING
     public Vector3 movRotation;
     private Vector3 playerRotation;
+    private Vector3 tempPlayerRotation;
 
 	// Use this for initialization
 	void Start () {
         playerRotation = Vector3.zero;
+        tempPlayerRotation = Vector3.zero;
         movRotation = new Vector3(1f, 0, 0);
         myBody = GetComponent<Rigidbody>();
 
@@ -262,6 +264,7 @@ public class PlayerMovement : MonoBehaviour {
             {
                 ZPlaneAnimationState = 0;
                 inZPlaneAnimation = false;
+                transform.position = ZPlaneEndPosition + new Vector3(0,0.4f,0);
             }
            
         }
@@ -278,9 +281,9 @@ public class PlayerMovement : MonoBehaviour {
         {
             if (facingDirection != dir)
             {
+                transform.Rotate(0, 180f * facingDirection, 0);
                 facingDirection = dir;
             }
-            transform.localScale = new Vector3(dir, 1f, 1f);
         }
     }
 
@@ -325,13 +328,13 @@ public class PlayerMovement : MonoBehaviour {
         if (movRotation == new Vector3(1f, 0, 0))
         {
             movRotation = new Vector3(0, 0, 1f);
-            playerRotation = new Vector3(0, -90f, 0);
+            playerRotation = new Vector3(0, transform.rotation.eulerAngles.y -90f, 0);
             transform.rotation = Quaternion.Euler(playerRotation);
         }
         else if (movRotation == new Vector3(0, 0, 1f))
         {
             movRotation = new Vector3(1f, 0, 0);
-            playerRotation = new Vector3(0, 0, 0);
+            playerRotation = new Vector3(0, transform.rotation.eulerAngles.y +90f, 0);
             transform.rotation = Quaternion.Euler(playerRotation);
         }
 
@@ -352,6 +355,12 @@ public class PlayerMovement : MonoBehaviour {
         {
             zRotator = other.GetComponent<ZRotatorScript>();
             zRotator.ToggleArrowVisibility(true);
+        }
+
+        else if (other.CompareTag("Crystal"))
+        {
+            Destroy(other.gameObject);
+            GameController.ChangePoints(1);
         }
     }
 

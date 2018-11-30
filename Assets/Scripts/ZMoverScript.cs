@@ -11,6 +11,15 @@ public class ZMoverScript : MonoBehaviour {
     private float arrowScaleTo;
     public bool isDisabled = false;
 
+    
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = new Color(1f, 0.5f, 0.25f, 1f);
+        //Gizmos.color = Color.yellow;
+        Gizmos.DrawCube(transform.position, new Vector3(1f, 1f, 1f));
+        Gizmos.DrawWireCube(transform.position, new Vector3(1f, 1f, 1f));
+    }
+    
 
     public void ToggleArrowVisibility(bool show)
     {
