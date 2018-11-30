@@ -10,6 +10,7 @@ public class ZRotatorScript : MonoBehaviour
     public bool isDisabled = false;
     //public Vector3 newRot;
     public bool moveUp;
+    public bool changeLookDepth = false;
 
 
     private void OnDrawGizmos()

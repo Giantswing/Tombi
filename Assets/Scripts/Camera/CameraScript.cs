@@ -14,7 +14,7 @@ public class CameraScript : MonoBehaviour {
     private float yPosTo;
     private float zPosTo;
 
-    private float xSpeed = 0.1f;
+    private float xSpeed = 0.15f;
     private float ySpeed = 0.06f;
     private float zSpeed = 0.1f;
 
@@ -53,9 +53,9 @@ public class CameraScript : MonoBehaviour {
         zPosTo = target.position.z - 8.5f - player.ZPlane*1.5f;
         */
 
-        xPosTo = target.position.x + (HorizontalOffset * player.movRotation.x) + (-DepthOffset * player.movRotation.z);
+        xPosTo = target.position.x + (HorizontalOffset * player.movRotation.x * GameController.LookDepth) + (-DepthOffset * player.movRotation.z * GameController.LookDepth);
         yPosTo = target.position.y + 2.5f;
-        zPosTo = target.position.z + (DepthOffset * player.movRotation.x);
+        zPosTo = target.position.z + (DepthOffset * player.movRotation.x * GameController.LookDepth);
 
         xPos += (xPosTo - xPos) * xSpeed;
         yPos += (yPosTo - yPos) * ySpeed;

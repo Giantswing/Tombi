@@ -18,6 +18,8 @@ public class GameController : MonoBehaviour {
     private PlayerMovement playerScript;
     private Rigidbody playerBody;
 
+    public static int LookDepth = 1;
+
     private float deltaTime;
     private float fpsTemp;
     private float fpsFinal;
@@ -139,6 +141,7 @@ public class GameController : MonoBehaviour {
         playerScript.movRotation = new Vector3(1f, 0, 0);
         player.transform.rotation = Quaternion.Euler(Vector3.zero);
         playerScript.facingDirection = 1;
+        LookDepth = 1;
     }
 
     public static bool ReturnConsoleState()

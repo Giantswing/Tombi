@@ -70,7 +70,7 @@ public class PlayerMovement : MonoBehaviour {
         movRotation = new Vector3(1f, 0, 0);
         myBody = GetComponent<Rigidbody>();
 
-        holdingWallCollisionBoxSize = new Vector3(0.3f, 0.35f, 0.2f);
+        holdingWallCollisionBoxSize = new Vector3(0.3f, 0.2f, 0.2f);
         normalWallCollisionBoxSize = new Vector3(0.2f, 0.1f, 0.1f);
         floorCollisionBoxSize = new Vector3(0.35f, 0.35f, 0.2f);
         holdingWallPos = Vector3.zero;
@@ -163,7 +163,7 @@ public class PlayerMovement : MonoBehaviour {
                 if (!isHoldingWall)
                 {
                     isMoving = true;
-                    TurnDirection(1);
+                    TurnDirection(1 * GameController.LookDepth);
                     xSpeed += movementAccelarationNow * facingDirection * Time.deltaTime * 60f;
 
                     if (holdingWallColliders.Length > 0 && holdingWallDelay <= 0)
@@ -176,7 +176,7 @@ public class PlayerMovement : MonoBehaviour {
                 if (!isHoldingWall)
                 {
                     isMoving = true;
-                    TurnDirection(-1);
+                    TurnDirection(-1 * GameController.LookDepth);
                     xSpeed += movementAccelarationNow * facingDirection * Time.deltaTime * 60f;
                     if (holdingWallColliders.Length > 0 && holdingWallDelay <= 0)
                         isHoldingWall = true;
@@ -220,7 +220,7 @@ public class PlayerMovement : MonoBehaviour {
                 {
                     if (!zRotator.isDisabled)
                     {
-                        ZRotate();
+                        ZRotate(zRotator.changeLookDepth);
                     }
                 }
             }
@@ -237,7 +237,7 @@ public class PlayerMovement : MonoBehaviour {
                 {
                     if (!zRotator.isDisabled)
                     {
-                        ZRotate();
+                        ZRotate(zRotator.changeLookDepth);
                     }
                 }
 
@@ -311,7 +311,7 @@ public class PlayerMovement : MonoBehaviour {
         ZPlaneAnimationState = 0;
     }
 
-    private void ZRotate()
+    private void ZRotate(bool changeLookDepth)
     {
         //movRotation = zRotator.newRot;
 
@@ -341,6 +341,11 @@ public class PlayerMovement : MonoBehaviour {
         Vector3 newPosition = new Vector3(zRotator.transform.position.x, 0, zRotator.transform.position.z);
 
         transform.position = new Vector3(newPosition.x, transform.position.y, newPosition.z);
+
+        if (changeLookDepth)
+        {
+            GameController.LookDepth *= -1;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
