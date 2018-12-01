@@ -35,7 +35,7 @@ public class CameraScript : MonoBehaviour {
     {
         player = target.GetComponent<PlayerMovement>();
         xPosTo = target.position.x + (HorizontalOffset * player.movRotation.x) + (DepthOffset * player.movRotation.z);
-        yPosTo = target.position.y + 1f;
+        yPosTo = target.position.y;
         zPosTo = target.position.z + (DepthOffset * player.movRotation.x);
 
         //postVolume = gameObject.GetComponent<PostProcessVolume>();
@@ -54,7 +54,7 @@ public class CameraScript : MonoBehaviour {
         */
 
         xPosTo = target.position.x + (HorizontalOffset * player.movRotation.x * GameController.LookDepth) + (-DepthOffset * player.movRotation.z * GameController.LookDepth);
-        yPosTo = target.position.y + 2.5f;
+        yPosTo = target.position.y + 1.5f;
         zPosTo = target.position.z + (DepthOffset * player.movRotation.x * GameController.LookDepth);
 
         xPos += (xPosTo - xPos) * xSpeed;
@@ -65,7 +65,7 @@ public class CameraScript : MonoBehaviour {
         transform.position = pos;
         transform.LookAt(target);
         cameraRot = transform.rotation.eulerAngles;
-        cameraRot = new Vector3(20f, cameraRot.y, cameraRot.z);
+        cameraRot = new Vector3(10f, cameraRot.y, cameraRot.z);
         transform.rotation = Quaternion.Euler(cameraRot);
 
         //dofLayer.focusDistance.value = distToPlayer;

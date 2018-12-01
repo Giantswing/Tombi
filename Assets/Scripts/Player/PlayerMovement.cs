@@ -63,8 +63,41 @@ public class PlayerMovement : MonoBehaviour {
     private Vector3 playerRotation;
     private Vector3 tempPlayerRotation;
 
-	// Use this for initialization
-	void Start () {
+    //VARIABLES FOR ANIMATION
+    public Animator myAnimator;
+    private bool isAttacking = false;
+    private int attackIndex = 0;
+    private float attackTime = 0;
+    //ATTACKING
+
+    private GameAnimation[] attacks;
+    private int currentAnimationState = 0;
+
+    public struct GameAnimation
+    {
+        public string AnimationName;
+        public int TotalLengthFrames;
+        public int StartDamageFrame;
+        public int StartRecoveryFrame;
+
+        public GameAnimation(string animationName, int totalLength, int startDamageFrame, int startRecoveryFrame)
+        {
+            this.AnimationName = animationName;
+            this.TotalLengthFrames = totalLength;
+            this.StartDamageFrame = startDamageFrame;
+            this.StartRecoveryFrame = startRecoveryFrame;
+        }
+    }
+
+
+    // Use this for initialization
+    void Start () {
+        attacks = new GameAnimation[1];
+        attacks[0] = new GameAnimation("Attack1", 39, 15, 22);
+        
+
+        myAnimator.SetInteger("AnimState", 0);
+
         playerRotation = Vector3.zero;
         tempPlayerRotation = Vector3.zero;
         movRotation = new Vector3(1f, 0, 0);
@@ -81,9 +114,25 @@ public class PlayerMovement : MonoBehaviour {
 
         floorColliders = Physics.OverlapBox(transform.position + new Vector3(0, -0.8f, 0), floorCollisionBoxSize, Quaternion.identity, (1 << groundLayer) | (1 << holdingWallLayer));
         if (floorColliders.Length > 0)
+        {
             isInAir = false;
+            myAnimator.SetInteger("AnimAir", 0);
+        }
         else
+        {
             isInAir = true;
+            if(myBody.velocity.y > 4f)
+            {
+                if(myAnimator.GetInteger("AnimAir") != 2)
+                    myAnimator.SetInteger("AnimAir", 1);
+            }
+            else
+            {
+                myAnimator.SetInteger("AnimAir", -1);
+            }
+            //print(myAnimator.GetInteger("AnimAir"));
+            //print(myBody.velocity.y);
+        }
 
 
         holdingWallColliders = Physics.OverlapBox(transform.position + new Vector3((0.5f * facingDirection * movRotation.x), 0.8f, (0.5f * facingDirection * movRotation.z)), holdingWallCollisionBoxSize, Quaternion.identity, 1 << holdingWallLayer);
@@ -117,7 +166,7 @@ public class PlayerMovement : MonoBehaviour {
 
         if (!isMoving)
         {
-            if(xSpeed > 0)
+            if (xSpeed > 0)
             {
                 xSpeed -= movementBrakeNow * Time.deltaTime * 60f;
                 if (xSpeed < 0)
@@ -160,48 +209,88 @@ public class PlayerMovement : MonoBehaviour {
         {
             if (Input.GetKey(KeyCode.D))
             {
-                if (!isHoldingWall)
+                if (!isHoldingWall && !isAttacking)
                 {
+                    myAnimator.SetInteger("AnimState", 1);
                     isMoving = true;
                     TurnDirection(1 * GameController.LookDepth);
                     xSpeed += movementAccelarationNow * facingDirection * Time.deltaTime * 60f;
 
                     if (holdingWallColliders.Length > 0 && holdingWallDelay <= 0)
+                    {
                         isHoldingWall = true;
+                        myAnimator.SetBool("HoldingWall", true);
+                    }
                 }
             }
 
             else if (Input.GetKey(KeyCode.A))
             {
-                if (!isHoldingWall)
+                if (!isHoldingWall && !isAttacking)
                 {
+                    myAnimator.SetInteger("AnimState", 1);
                     isMoving = true;
                     TurnDirection(-1 * GameController.LookDepth);
                     xSpeed += movementAccelarationNow * facingDirection * Time.deltaTime * 60f;
                     if (holdingWallColliders.Length > 0 && holdingWallDelay <= 0)
+                    {
+                        myAnimator.SetBool("HoldingWall", true);
                         isHoldingWall = true;
+                    }
                 }
             }
+
+
+            //.///////////////////////////////////////COMBAT//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            if (isAttacking)
+            {
+                attackTime += Time.deltaTime*2.4f;
+                myAnimator.SetFloat("AttackNormalizedTime", attackTime);
+            }
+
+            if(attackTime >= 1)
+            {
+                attackIndex = 0;
+                isAttacking = false;
+                myAnimator.SetInteger("AttackIndex", 0);
+            }
+
+            if (Input.GetKeyDown(KeyCode.F) && !isAttacking && !isInAir && !isHoldingWall)
+            {
+                isMoving = false;
+                attackTime = 0;
+                isAttacking = true;
+                attackIndex = 1;
+                myAnimator.SetInteger("AttackIndex", 1);
+            }
+
+            ///../////////////////////////////////////////...///////////////////////////////////.../////////////////////////////////////////////////////////////////
+
 
             //Parar movimiento horizontal al soltar alguna tecla de movimiento
             if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A))
             {
                 isMoving = false;
+                myAnimator.SetInteger("AnimState", 0);
             }
 
 
             //Salto
             if (Input.GetKeyDown(KeyCode.Space))
             {
+                myAnimator.SetBool("HoldingWall", false);
+
                 if (isHoldingWall)
                 {
+                    myAnimator.SetInteger("AnimAir", 2);
                     isHoldingWall = false;
                     myBody.velocity = new Vector3(0, jumpSpeed, 0);
                     xSpeed = (movementAccelarationNow*12f) * -facingDirection;
                     holdingWallDelay = 0.25f;
                 }
 
-                if (!isInAir && !isHoldingWall)
+                if (!isInAir && !isHoldingWall && !isAttacking)
                 {
                     myBody.velocity = new Vector3(0, jumpSpeed, 0);
                 }
