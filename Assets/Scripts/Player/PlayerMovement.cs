@@ -57,6 +57,7 @@ public class PlayerMovement : MonoBehaviour {
     //LAYERS
     int groundLayer = 8;
     int holdingWallLayer = 10;
+    int ignoreLayer = 11;
 
     //VARIABLES FOR ZROTATING
     public Vector3 movRotation;
@@ -71,7 +72,10 @@ public class PlayerMovement : MonoBehaviour {
     //ATTACKING
 
     private GameAnimation[] attacks;
-    private int currentAnimationState = 0;
+    private int currentAttack = 0;
+    public TrailRenderer hitTrail;
+    public bool canHit = false;
+
 
     public struct GameAnimation
     {
@@ -102,6 +106,8 @@ public class PlayerMovement : MonoBehaviour {
         tempPlayerRotation = Vector3.zero;
         movRotation = new Vector3(1f, 0, 0);
         myBody = GetComponent<Rigidbody>();
+
+        Physics.IgnoreLayerCollision(0, ignoreLayer);
 
         holdingWallCollisionBoxSize = new Vector3(0.3f, 0.2f, 0.2f);
         normalWallCollisionBoxSize = new Vector3(0.2f, 0.1f, 0.1f);
@@ -243,9 +249,22 @@ public class PlayerMovement : MonoBehaviour {
 
             //.///////////////////////////////////////COMBAT//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+            if (attackTime > 0.25f && attackTime < 0.5f)
+            {
+                hitTrail.enabled = true;
+                //hitTrail.SetActive(true);
+                canHit = true;
+            }
+            else
+            {
+                hitTrail.enabled = false;
+                //hitTrail.SetActive(false);
+                canHit = false;
+            }
+
             if (isAttacking)
             {
-                attackTime += Time.deltaTime*2.4f;
+                attackTime += Time.deltaTime*2.3f;
                 myAnimator.SetFloat("AttackNormalizedTime", attackTime);
             }
 
@@ -256,13 +275,21 @@ public class PlayerMovement : MonoBehaviour {
                 myAnimator.SetInteger("AttackIndex", 0);
             }
 
-            if (Input.GetKeyDown(KeyCode.F) && !isAttacking && !isInAir && !isHoldingWall)
+            if (Input.GetKeyDown(KeyCode.F) && !isInAir && !isHoldingWall && (attackTime > 0.6f || !isAttacking))
             {
                 isMoving = false;
                 attackTime = 0;
                 isAttacking = true;
-                attackIndex = 1;
-                myAnimator.SetInteger("AttackIndex", 1);
+               
+
+                if(attackIndex == 0)
+                    attackIndex = 1;
+                else if(attackIndex == 1)
+                    attackIndex = 2;
+                else if(attackIndex == 2)
+                    attackIndex = 1;
+
+                myAnimator.SetInteger("AttackIndex", attackIndex);
             }
 
             ///../////////////////////////////////////////...///////////////////////////////////.../////////////////////////////////////////////////////////////////
@@ -316,6 +343,15 @@ public class PlayerMovement : MonoBehaviour {
 
             else if (Input.GetKeyDown(KeyCode.S))
             {
+                if (isHoldingWall)
+                {
+                    isHoldingWall = false;
+                    myAnimator.SetBool("HoldingWall", false);
+                    holdingWallDelay = 0.25f;
+                    myAnimator.SetInteger("AnimAir", -1);
+
+                }
+
                 if (zObject != null)
                 {
                     if (!zObject.moveUp && !zObject.isDisabled)
@@ -344,6 +380,26 @@ public class PlayerMovement : MonoBehaviour {
             }
             else
             {
+                if(ZPlaneAnimationState < 0.25f)
+                {
+                    myAnimator.SetInteger("AnimState", 0);
+                    myAnimator.SetInteger("AnimAir", 1);
+                }
+                else if(ZPlaneAnimationState >= 0.25f && ZPlaneAnimationState < 0.5f)
+                {
+                    myAnimator.SetInteger("AnimState", 0);
+                    myAnimator.SetInteger("AnimAir", -1);
+                }
+                else if (ZPlaneAnimationState >= 0.5f && ZPlaneAnimationState < 0.75f)
+                {
+                    myAnimator.SetInteger("AnimState", 0);
+                    myAnimator.SetInteger("AnimAir", 1);
+                }else if(ZPlaneAnimationState >= 0.75f)
+                {
+                    myAnimator.SetInteger("AnimState", 0);
+                    myAnimator.SetInteger("AnimAir", -1);
+                }
+
                 ZPlaneAnimationState += Time.deltaTime * 1.5f;
                 tempPosition += new Vector3(0, 1f * Mathf.Abs(Mathf.Sin(ZPlaneAnimationState * 6f)), 0);
             }
@@ -354,6 +410,19 @@ public class PlayerMovement : MonoBehaviour {
                 ZPlaneAnimationState = 0;
                 inZPlaneAnimation = false;
                 transform.position = ZPlaneEndPosition + new Vector3(0,0.4f,0);
+
+                if (zObject.moveUp)
+                {
+                    playerRotation = transform.rotation.eulerAngles + new Vector3(0, -90f * facingDirection, 0);
+                    transform.rotation = Quaternion.Euler(playerRotation);
+                }
+                else
+                {
+                    playerRotation = transform.rotation.eulerAngles + new Vector3(0, 90f * facingDirection, 0);
+                    transform.rotation = Quaternion.Euler(playerRotation);
+                }
+
+
             }
            
         }
@@ -379,6 +448,17 @@ public class PlayerMovement : MonoBehaviour {
 
     private void ZMove(bool up)
     {
+        if (up)
+        {
+            playerRotation = transform.rotation.eulerAngles + new Vector3(0, -90f * facingDirection, 0);
+            transform.rotation = Quaternion.Euler(playerRotation);
+        } else
+        {
+            playerRotation = transform.rotation.eulerAngles + new Vector3(0, 90f * facingDirection, 0);
+            transform.rotation = Quaternion.Euler(playerRotation);
+        }
+
+
         if (up)
             ZPlane++;
         else

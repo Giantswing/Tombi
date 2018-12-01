@@ -7,6 +7,8 @@ TagManager:
   - ZMover
   - ZRotator
   - Crystal
+  - Enemy
+  - Ignore
   layers:
   - Default
   - TransparentFX
@@ -19,7 +21,7 @@ TagManager:
   - Ground
   - PostProcessing
   - HoldingWall
-  - 
+  - Ignore
   - 
   - 
   - 
