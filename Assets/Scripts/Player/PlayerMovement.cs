@@ -84,13 +84,17 @@ public class PlayerMovement : MonoBehaviour {
         public int TotalLengthFrames;
         public int StartDamageFrame;
         public int StartRecoveryFrame;
+        public float AttackDamange;
+        public float AttackSpeed;
 
-        public GameAnimation(string animationName, int totalLength, int startDamageFrame, int startRecoveryFrame)
+        public GameAnimation(string animationName, int totalLength, int startDamageFrame, int startRecoveryFrame, float attackDamage, float attackSpeed)
         {
             this.AnimationName = animationName;
             this.TotalLengthFrames = totalLength;
             this.StartDamageFrame = startDamageFrame;
             this.StartRecoveryFrame = startRecoveryFrame;
+            this.AttackDamange = attackDamage;
+            this.AttackSpeed = attackSpeed;
         }
     }
 
@@ -102,9 +106,13 @@ public class PlayerMovement : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        attacks = new GameAnimation[1];
-        attacks[0] = new GameAnimation("Attack1", 39, 15, 22);
-        
+        hitTrail.enabled = false;
+        //AttackName, FrameLength, StartDamage, StartRecovery, Damage, AttackSpeed
+
+        attacks = new GameAnimation[3];
+        attacks[0] = new GameAnimation("Attack1", 34, 9, 17, 10f, 2.3f);
+        attacks[1] = new GameAnimation("Attack2", 25, 9, 16, 12f, 2.3f);
+        attacks[2] = new GameAnimation("JumpAttack", 24, 18, 28, 20f, 3f);
 
         myAnimator.SetInteger("AnimState", 0);
 
@@ -221,7 +229,7 @@ public class PlayerMovement : MonoBehaviour {
         {
             if (Input.GetKey(KeyCode.D))
             {
-                if (!isHoldingWall && !isAttacking && !isTalking)
+                if (!isHoldingWall && !isAttacking && !isTalking && !inZPlaneAnimation)
                 {
                     myAnimator.SetInteger("AnimState", 1);
                     isMoving = true;
@@ -238,7 +246,7 @@ public class PlayerMovement : MonoBehaviour {
 
             else if (Input.GetKey(KeyCode.A))
             {
-                if (!isHoldingWall && !isAttacking && !isTalking)
+                if (!isHoldingWall && !isAttacking && !isTalking && !inZPlaneAnimation)
                 {
                     myAnimator.SetInteger("AnimState", 1);
                     isMoving = true;
@@ -254,46 +262,59 @@ public class PlayerMovement : MonoBehaviour {
 
 
             //.///////////////////////////////////////COMBAT//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-            if (attackTime > 0.25f && attackTime < 0.5f)
-            {
-                hitTrail.enabled = true;
-                //hitTrail.SetActive(true);
-                canHit = true;
-            }
-            else
-            {
-                hitTrail.enabled = false;
-                //hitTrail.SetActive(false);
-                canHit = false;
-            }
-
             if (isAttacking)
             {
-                attackTime += Time.deltaTime*2.3f;
+                //print((float)attacks[attackIndex - 1].StartDamageFrame / attacks[attackIndex - 1].TotalLengthFrames);
+                if (attackTime > ((float)attacks[attackIndex - 1].StartDamageFrame / (float)attacks[attackIndex - 1].TotalLengthFrames) && attackTime < ((float)attacks[attackIndex - 1].StartRecoveryFrame / (float)attacks[attackIndex - 1].TotalLengthFrames))
+                {
+                    print("aaaa");
+                    hitTrail.enabled = true;
+                    //hitTrail.SetActive(true);
+                    canHit = true;
+                }
+                else
+                {
+                    hitTrail.enabled = false;
+                    //hitTrail.SetActive(false);
+                    canHit = false;
+                }
+
+                attackTime += Time.deltaTime * attacks[attackIndex - 1].AttackSpeed;
                 myAnimator.SetFloat("AttackNormalizedTime", attackTime);
             }
 
-            if(attackTime >= 1)
+
+            if(attackTime >= 1 && floorColliders.Length > 0)
             {
+                canHit = false;
+                hitTrail.enabled = false;
                 attackIndex = 0;
                 isAttacking = false;
                 myAnimator.SetInteger("AttackIndex", 0);
             }
 
-            if (Input.GetKeyDown(KeyCode.F) && !isInAir && !isHoldingWall && (attackTime > 0.6f || !isAttacking) && !isTalking && NPCSystem == null)
+            if (Input.GetKeyDown(KeyCode.F) && !isHoldingWall && (attackTime > 0.6f || !isAttacking) && !isTalking && NPCSystem == null && attackIndex != 3)
             {
+
                 isMoving = false;
                 attackTime = 0;
                 isAttacking = true;
-               
 
-                if(attackIndex == 0)
-                    attackIndex = 1;
-                else if(attackIndex == 1)
-                    attackIndex = 2;
-                else if(attackIndex == 2)
-                    attackIndex = 1;
+                if (!isInAir)
+                {
+                    if (attackIndex == 0)
+                        attackIndex = 1;
+                    else if (attackIndex == 1)
+                        attackIndex = 2;
+                    else if (attackIndex == 2)
+                        attackIndex = 1;
+                }
+
+                if (isInAir)
+                {
+                    myBody.velocity = new Vector3(0, jumpSpeed*0.3f, 0);
+                    attackIndex = 3;
+                }
 
                 myAnimator.SetInteger("AttackIndex", attackIndex);
             }
