@@ -69,12 +69,13 @@ public class PlayerMovement : MonoBehaviour {
     private bool isAttacking = false;
     private int attackIndex = 0;
     private float attackTime = 0;
+   
     //ATTACKING
 
     private GameAnimation[] attacks;
     private int currentAttack = 0;
     public TrailRenderer hitTrail;
-    public bool canHit = false;
+    [HideInInspector] public bool canHit = false;
 
 
     public struct GameAnimation
@@ -92,6 +93,11 @@ public class PlayerMovement : MonoBehaviour {
             this.StartRecoveryFrame = startRecoveryFrame;
         }
     }
+
+    //VARIABLES FOR DIALOGUE
+    [HideInInspector]       public DialogueSystem NPCSystem;
+    [HideInInspector]       public bool isTalking = false;
+    
 
 
     // Use this for initialization
@@ -215,7 +221,7 @@ public class PlayerMovement : MonoBehaviour {
         {
             if (Input.GetKey(KeyCode.D))
             {
-                if (!isHoldingWall && !isAttacking)
+                if (!isHoldingWall && !isAttacking && !isTalking)
                 {
                     myAnimator.SetInteger("AnimState", 1);
                     isMoving = true;
@@ -232,7 +238,7 @@ public class PlayerMovement : MonoBehaviour {
 
             else if (Input.GetKey(KeyCode.A))
             {
-                if (!isHoldingWall && !isAttacking)
+                if (!isHoldingWall && !isAttacking && !isTalking)
                 {
                     myAnimator.SetInteger("AnimState", 1);
                     isMoving = true;
@@ -275,7 +281,7 @@ public class PlayerMovement : MonoBehaviour {
                 myAnimator.SetInteger("AttackIndex", 0);
             }
 
-            if (Input.GetKeyDown(KeyCode.F) && !isInAir && !isHoldingWall && (attackTime > 0.6f || !isAttacking))
+            if (Input.GetKeyDown(KeyCode.F) && !isInAir && !isHoldingWall && (attackTime > 0.6f || !isAttacking) && !isTalking && NPCSystem == null)
             {
                 isMoving = false;
                 attackTime = 0;
@@ -291,6 +297,23 @@ public class PlayerMovement : MonoBehaviour {
 
                 myAnimator.SetInteger("AttackIndex", attackIndex);
             }
+
+            //ACTIVATE DIALOGUE //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            if(Input.GetKeyDown(KeyCode.F) && NPCSystem != null && !isInAir && !isHoldingWall && !isAttacking)
+            {
+                if (isTalking == false)
+                {
+                    NPCSystem.player = gameObject.GetComponent<PlayerMovement>();
+                    print("Iniciando conversación");
+                    isTalking = true;
+                    NPCSystem.StartDialogue();
+                }
+
+                NPCSystem.Talk();
+            }
+
+
 
             ///../////////////////////////////////////////...///////////////////////////////////.../////////////////////////////////////////////////////////////////
 
@@ -431,6 +454,8 @@ public class PlayerMovement : MonoBehaviour {
 
         //myBody.velocity = new Vector3(xSpeed, myBody.velocity.y, myBody.velocity.z);
         myBody.velocity = new Vector3(xSpeed * movRotation.x, myBody.velocity.y, xSpeed * movRotation.z);
+
+        // /////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 
     private void TurnDirection(int dir)
@@ -445,6 +470,7 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
+    //***************/////////////**********/////////////*********//////////***********///////////////////////////
 
     private void ZMove(bool up)
     {
@@ -480,20 +506,10 @@ public class PlayerMovement : MonoBehaviour {
         ZPlaneAnimationState = 0;
     }
 
+    //***********************////***********************************************////////////*******************************////
+
     private void ZRotate(bool changeLookDepth)
     {
-        //movRotation = zRotator.newRot;
-
-        /*
-        if (zRotator.moveUp)
-        {
-            if(movRotation == new Vector3(1f, 0, 0))
-            {
-                movRotation = new Vector3()
-            }
-        }
-        */
-
         if (movRotation == new Vector3(1f, 0, 0))
         {
             movRotation = new Vector3(0, 0, 1f);
@@ -517,6 +533,8 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
+    //*********************///************************/////////////************************//////////////////////////////////////
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("ZMover"))
@@ -536,7 +554,19 @@ public class PlayerMovement : MonoBehaviour {
             Destroy(other.gameObject);
             GameController.ChangePoints(1);
         }
+
+        else if (other.CompareTag("NPC"))
+        {
+            NPCSystem = other.GetComponent<DialogueSystem>();
+            if(NPCSystem != null)
+            {
+                NPCSystem.TogglePopup(true);
+            }
+        }
+
     }
+
+    //**************//////////////////********************/////////////*********************/
 
     private void OnTriggerExit(Collider other)
     {
@@ -550,6 +580,17 @@ public class PlayerMovement : MonoBehaviour {
         {
             zRotator.ToggleArrowVisibility(false);
             zRotator = null;
+        }
+
+        else if (other.CompareTag("NPC"))
+        {
+            NPCSystem = other.GetComponent<DialogueSystem>();
+            if (NPCSystem != null)
+            {
+                NPCSystem.TogglePopup(false);
+            }
+
+            NPCSystem = null;
         }
     }
 }

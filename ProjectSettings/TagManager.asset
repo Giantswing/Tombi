@@ -9,6 +9,7 @@ TagManager:
   - Crystal
   - Enemy
   - Ignore
+  - NPC
   layers:
   - Default
   - TransparentFX
