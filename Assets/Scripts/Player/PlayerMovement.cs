@@ -361,7 +361,7 @@ public class PlayerMovement : MonoBehaviour {
                     holdingWallDelay = 0.25f;
                 }
 
-                if (!isInAir && !isHoldingWall && !isAttacking)
+                if (!isInAir && !isHoldingWall && !isAttacking && !isTalking)
                 {
                     myBody.velocity = new Vector3(0, jumpSpeed, 0);
                 }
