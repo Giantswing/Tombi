@@ -227,7 +227,8 @@ public class PlayerMovement : MonoBehaviour {
 
         if (GameController.ReturnConsoleState() == false || inZPlaneAnimation)
         {
-            if (Input.GetKey(KeyCode.D))
+            //if (Input.GetKey(KeyCode.D))
+            if(Input.GetButton("MoveRight"))
             {
                 if (!isHoldingWall && !isAttacking && !isTalking && !inZPlaneAnimation)
                 {
@@ -244,7 +245,7 @@ public class PlayerMovement : MonoBehaviour {
                 }
             }
 
-            else if (Input.GetKey(KeyCode.A))
+            else if (Input.GetButton("MoveLeft"))
             {
                 if (!isHoldingWall && !isAttacking && !isTalking && !inZPlaneAnimation)
                 {
@@ -267,7 +268,6 @@ public class PlayerMovement : MonoBehaviour {
                 //print((float)attacks[attackIndex - 1].StartDamageFrame / attacks[attackIndex - 1].TotalLengthFrames);
                 if (attackTime > ((float)attacks[attackIndex - 1].StartDamageFrame / (float)attacks[attackIndex - 1].TotalLengthFrames) && attackTime < ((float)attacks[attackIndex - 1].StartRecoveryFrame / (float)attacks[attackIndex - 1].TotalLengthFrames))
                 {
-                    print("aaaa");
                     hitTrail.enabled = true;
                     //hitTrail.SetActive(true);
                     canHit = true;
@@ -293,7 +293,7 @@ public class PlayerMovement : MonoBehaviour {
                 myAnimator.SetInteger("AttackIndex", 0);
             }
 
-            if (Input.GetKeyDown(KeyCode.F) && !isHoldingWall && (attackTime > 0.6f || !isAttacking) && !isTalking && NPCSystem == null && attackIndex != 3)
+            if (Input.GetButtonUp("Attack") && !isHoldingWall && (attackTime > 0.6f || !isAttacking) && !isTalking && NPCSystem == null && attackIndex != 3 && !inZPlaneAnimation)
             {
 
                 isMoving = false;
@@ -321,7 +321,7 @@ public class PlayerMovement : MonoBehaviour {
 
             //ACTIVATE DIALOGUE //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            if(Input.GetKeyDown(KeyCode.F) && NPCSystem != null && !isInAir && !isHoldingWall && !isAttacking)
+            if(Input.GetButtonDown("Attack") && NPCSystem != null && !isInAir && !isHoldingWall && !isAttacking)
             {
                 if (isTalking == false)
                 {
@@ -340,7 +340,7 @@ public class PlayerMovement : MonoBehaviour {
 
 
             //Parar movimiento horizontal al soltar alguna tecla de movimiento
-            if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A))
+            if (Input.GetButtonUp("MoveRight") || Input.GetButtonUp("MoveLeft"))
             {
                 isMoving = false;
                 myAnimator.SetInteger("AnimState", 0);
@@ -348,7 +348,7 @@ public class PlayerMovement : MonoBehaviour {
 
 
             //Salto
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetButtonDown("Jump"))
             {
                 myAnimator.SetBool("HoldingWall", false);
 
@@ -368,7 +368,7 @@ public class PlayerMovement : MonoBehaviour {
             }
 
             //Moverse en el eje Z (moverse al fondo)
-            if (Input.GetKeyDown(KeyCode.W))
+            if (Input.GetButtonDown("MoveUp"))
             {
                 if (zObject != null)
                 {
@@ -385,7 +385,7 @@ public class PlayerMovement : MonoBehaviour {
                 }
             }
 
-            else if (Input.GetKeyDown(KeyCode.S))
+            else if (Input.GetButtonDown("MoveDown"))
             {
                 if (isHoldingWall)
                 {

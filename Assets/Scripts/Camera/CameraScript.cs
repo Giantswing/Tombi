@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
+//using UnityEngine.Rendering.PostProcessing;
 
 public class CameraScript : MonoBehaviour {
     public Transform target;
@@ -25,8 +25,8 @@ public class CameraScript : MonoBehaviour {
 
     private Vector3 cameraRot;
     //POST PROCESADO
-    private DepthOfField dofLayer = null;
-    private PostProcessVolume postVolume;
+    //private DepthOfField dofLayer = null;
+    //private PostProcessVolume postVolume;
     private float distToPlayer;
     
 
@@ -39,8 +39,8 @@ public class CameraScript : MonoBehaviour {
         yPosTo = target.position.y;
         zPosTo = target.position.z + (DepthOffset * player.movRotation.x);
 
-        postVolume = gameObject.GetComponent<PostProcessVolume>();
-        postVolume.profile.TryGetSettings(out dofLayer);
+        //postVolume = gameObject.GetComponent<PostProcessVolume>();
+        //postVolume.profile.TryGetSettings(out dofLayer);
     }
 
 
@@ -97,6 +97,6 @@ public class CameraScript : MonoBehaviour {
 
 
 
-        dofLayer.focusDistance.value = distToPlayer;
+        //dofLayer.focusDistance.value = distToPlayer;
     }
 }

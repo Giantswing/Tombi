@@ -330,11 +330,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4770571490864470, guid: cbf4c287120bd5648b122a956c527ca9,
     type: 2}
   m_PrefabInternal: {fileID: 51719116}
---- !u!96 &70700986 stripped
-TrailRenderer:
-  m_CorrespondingSourceObject: {fileID: 96377191030411780, guid: c8209baa602364d4ea33685c04096d42,
-    type: 2}
-  m_PrefabInternal: {fileID: 1865046356}
 --- !u!4 &115753046 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4509986037087344, guid: c7f88a1601cf2034ea1acf71872e27f7,
@@ -755,7 +750,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 12.400024, y: 1.5700073}
+  m_AnchoredPosition: {x: 12.400024, y: 1.5699463}
   m_SizeDelta: {x: 160, y: 41.25}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &280991552
@@ -4590,27 +4585,15 @@ Prefab:
       propertyPath: m_RootOrder
       value: 9
       objectReference: {fileID: 0}
-    - target: {fileID: 114898805993529540, guid: c8209baa602364d4ea33685c04096d42,
+    - target: {fileID: 65735984244310658, guid: c8209baa602364d4ea33685c04096d42,
         type: 2}
-      propertyPath: hitTrail
-      value: 
-      objectReference: {fileID: 70700986}
-    - target: {fileID: 1176394075894376, guid: c8209baa602364d4ea33685c04096d42, type: 2}
-      propertyPath: m_TagString
-      value: Ignore
+      propertyPath: m_Center.y
+      value: -0.68
       objectReference: {fileID: 0}
-    - target: {fileID: 1176394075894376, guid: c8209baa602364d4ea33685c04096d42, type: 2}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1176394075894376, guid: c8209baa602364d4ea33685c04096d42, type: 2}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
-    - target: {fileID: 65988181319409828, guid: c8209baa602364d4ea33685c04096d42,
+    - target: {fileID: 65735984244310658, guid: c8209baa602364d4ea33685c04096d42,
         type: 2}
-      propertyPath: m_Enabled
-      value: 0
+      propertyPath: m_Size.y
+      value: 2.6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8209baa602364d4ea33685c04096d42, type: 2}
