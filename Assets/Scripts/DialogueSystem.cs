@@ -15,7 +15,7 @@ public class DialogueSystem : MonoBehaviour {
 
     private void Start()
     {
-        print(gameObject.name);
+        //print(gameObject.name);
         TogglePopup(false);
     }
 

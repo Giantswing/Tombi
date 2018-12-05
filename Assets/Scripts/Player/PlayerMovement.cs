@@ -67,13 +67,14 @@ public class PlayerMovement : MonoBehaviour {
     //VARIABLES FOR ANIMATION
     public Animator myAnimator;
     private bool isAttacking = false;
-    private int attackIndex = 0;
+    
     private float attackTime = 0;
    
     //ATTACKING
 
-    private GameAnimation[] attacks;
-    private int currentAttack = 0;
+    [HideInInspector] public GameAnimation[] attacks;
+    //[HideInInspector] private int currentAttack = 0;
+    [HideInInspector] public int attackIndex = 0;
     public TrailRenderer hitTrail;
     [HideInInspector] public bool canHit = false;
 
